@@ -25,7 +25,7 @@ subHeading: >-
 
 Les organisations intéressées à la publication de données en libre accès trouvent des informations dans le manuel en ligne suivant: [handbook.opendata.swiss](/handbook)
 
-[![opendata.swiss handbook logo](/img/handbook_logo.png "opendata.swiss handbook logo")](/handbook)
+[![opendata.swiss handbook logo](/cms/handbook_logo.png "opendata.swiss handbook logo")](/handbook)
 
 ## Qui gère le portail?
 

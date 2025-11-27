@@ -23,9 +23,9 @@ subHeading: >-
 ---
 ## Möchten Sie Daten auf opendata.swiss publizieren?
 
-Interessierte Anbieter öffentlicher Daten finden weitere Einzelheiten im entsprechenden Handbuch unter folgendem Link: [handbook.opendata.swiss](/handbook)
+Interessierte Anbieter öffentlicher Daten finden weitere Einzelheiten im entsprechenden Handbuch unter folgendem Link: [handbook.opendata.swiss](/handbook)[](/handbook)
 
-[![opendata.swiss handbook logo](/img/handbook_logo.png "opendata.swiss handbook logo")](/handbook)
+[![opendata.swiss handbook logo](/cms/handbook_logo.png "opendata.swiss handbook logo")](/handbook)
 
 ## Wer verwaltet das Portal?
 
