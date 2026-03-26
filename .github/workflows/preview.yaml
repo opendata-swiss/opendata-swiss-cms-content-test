@@ -1,0 +1,79 @@
+name: "Deploy Preview Environment"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - closed
+
+jobs:
+  trigger-preview:
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: write
+      statuses: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [test, int]
+
+    steps:
+      - name: Configure some variables
+        id: vars
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF}"
+          BRANCH_STANDARDIZED="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0])' "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9-]+/-/g; s/-+/-/g; s/^-+//; s/-+$//' | cut -c1-40)"
+          echo "branch=${BRANCH_STANDARDIZED}" >> $GITHUB_OUTPUT
+
+      - name: Start preview environment
+        if: github.event.action != 'closed'
+        run: |
+          gh workflow run preview-trigger.yaml \
+            --repo opendata-swiss/metadata.swiss \
+            --ref cms_ref \
+            -f env=${{ matrix.environment }} \
+            -f action=UP \
+            -f deployment_name="${{ steps.vars.outputs.branch }}" \
+            -f cms_ref="${{ github.head_ref }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      # Handle preview URL comment on the PR
+      - name: Find Comment
+        uses: peter-evans/find-comment@v4
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-includes: Your ${{ matrix.environment }} preview environment is deployed
+      - name: Show preview URL directly on the PR
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          edit-mode: replace
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Your ${{ matrix.environment }} preview environment is deployed! 🚀
+            **URL:** https://${{ steps.vars.outputs.branch }}.${{ matrix.environment }}-previews.ods.zazukoians.org/
+            **Note:** It may take a few minutes for the DNS to propagate, the certificate to be generated and the preview to be reachable.    
+
+      - name: Stop preview environment
+        working-directory: ./opendata.swiss/ui/k8s
+        if: github.event.action == 'closed'
+        continue-on-error: true
+        run: |
+          gh workflow run preview-trigger.yaml \
+            --repo opendata-swiss/metadata.swiss \
+            --ref cms_ref \
+            -f env=${{ matrix.environment }} \
+            -f action=DOWN \
+            -f deployment_name="${{ steps.vars.outputs.branch }}" \
+            -f cms_ref="${{ github.head_ref }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
