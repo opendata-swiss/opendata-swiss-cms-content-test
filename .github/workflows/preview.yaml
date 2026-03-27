@@ -30,6 +30,7 @@ jobs:
         with:
           app_id: ${{ secrets.ODS_GITHUB_APP_ID }}
           private_key: ${{ secrets.ODS_GITHUB_PRIVATE_KEY }}
+          installation_id: ${{ secrets.ODS_GITHUB_INSTALLATION_ID }}
 
       - name: Configure some variables
         id: vars
